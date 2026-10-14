@@ -3,6 +3,25 @@ from main import app
 
 client = TestClient(app)
 
+
+def test_read_students():
+    response = client.get("/students/")
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert len(data) == 27
+    assert {student["id"] for student in data} >= {
+        "26CS001",
+        "26CE001",
+        "26ME001",
+        "26EC001",
+        "26EE001",
+        "26RA001",
+    }
+
+
 def test_get_nonexisting_student():
     response = client.get("/students/26XX001")
 
@@ -158,6 +177,34 @@ def test_patch_nonexistent_student():
     )
 
     assert response.status_code == 404
+
+
+def test_patch_student_branch():
+    student_id = "26CS992"
+
+    create_response = client.post(
+        "/students/",
+        json={
+            "id": student_id,
+            "name": "Branch Test",
+            "branch": "CSE",
+            "cgpa": 8.0,
+        },
+    )
+
+    assert create_response.status_code == 200
+
+    try:
+        response = client.patch(
+            f"/students/{student_id}",
+            json={"branch": "ece"},
+        )
+
+        assert response.status_code == 200
+        assert response.json()["branch"] == "ECE"
+
+    finally:
+        client.delete(f"/students/{student_id}")
 
 
 def test_delete_nonexistent_student():

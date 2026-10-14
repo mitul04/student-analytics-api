@@ -18,13 +18,20 @@ Run venv -----------------------------------------------------------------------
 venv/scripts/activate
 uvicorn main:app --reload
 
+View used libraries --------------------------------------------------------------------------------------------
+python -m pip freeze > requirements.txt
+
+Analyze route testing and codebase coverage --------------------------------------------------------------------
+pytest -v
+pytest --cov=routes --cov-report=term-missing
+
 Learning phases ------------------------------------------------------------------------------------------------
 REST API             ██████████ 100%
 Backend Design       ██████████  95%
 Analytics            █████████░  90%
 Database             ██████░░░░  60%
 Validation           ████████░░  80%
-Testing              ████░░░░░░  40%
+Testing              ██████░░░░  60%
 Authentication       ░░░░░░░░░░   0%
 Deployment           ░░░░░░░░░░   0%
 Data Analysis        ░░░░░░░░░░   0%
