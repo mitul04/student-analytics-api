@@ -4,8 +4,7 @@ from sqlalchemy.orm import Session
 
 from database import get_db
 from db_models import Student, Branch
-
-from schemas import StudentBase, StudentCreate, StudentUpdate, StudentPatch
+from api_schemas import StudentBase, StudentDetail, StudentCreate, StudentUpdate, StudentPatch, StudentDelete
 
 
 router = APIRouter(prefix="/students", tags=["Students"])
@@ -34,15 +33,15 @@ def find_branch(branch: str, db: Session = Depends(get_db)):
 #    return f"{YEAR}{BRANCH_CODES[branch]}{registration_number}"
 
 
-@router.get("/")
+@router.get("/", response_model=list[StudentBase])
 def read_students(db : Session = Depends(get_db)):
     students = db.scalars(select(Student)).all()
     return students
 
 
-@router.get("/{id}")
+@router.get("/{id}", response_model=StudentDetail)
 def read_student(id: str, db : Session = Depends(get_db)):
-    found = find_student(id, db)
+    found = find_student(id.strip().upper(), db)
     if not found:
         raise HTTPException(status_code=404, detail="Student not found")
 
@@ -60,16 +59,16 @@ def read_student(id: str, db : Session = Depends(get_db)):
     }
 
 
-@router.post("/")
+@router.post("/", response_model=StudentBase)
 def create_student(student: StudentCreate, db : Session = Depends(get_db)):
-    exists = find_student(student.id, db)
+    exists = find_student(student.id.strip().upper(), db)
     if exists:
         raise HTTPException(status_code=400, detail="Student ID already exists")
 
     find_branch(student.branch, db)
 
     new_student = Student(
-        id=student.id,
+        id=student.id.strip().upper(),
         name=student.name,
         branch=student.branch.strip().upper(),
         cgpa=student.cgpa,
@@ -82,9 +81,9 @@ def create_student(student: StudentCreate, db : Session = Depends(get_db)):
     return new_student
 
 
-@router.put("/{id}")
+@router.put("/{id}", response_model=StudentBase)
 def update_all_details(id: str, student: StudentUpdate, db: Session = Depends(get_db)):
-    found = find_student(id, db)
+    found = find_student(id.strip().upper(), db)
     if not found:
         raise HTTPException(status_code=404, detail="Student not found")
 
@@ -100,9 +99,9 @@ def update_all_details(id: str, student: StudentUpdate, db: Session = Depends(ge
     return found
 
 
-@router.patch("/{id}")
+@router.patch("/{id}", response_model=StudentBase)
 def update_any_detail(id: str, student: StudentPatch, db: Session = Depends(get_db)):
-    found = find_student(id, db)
+    found = find_student(id.strip().upper(), db)
     if not found:
         raise HTTPException(status_code=404, detail="Student not found")
 
@@ -122,9 +121,9 @@ def update_any_detail(id: str, student: StudentPatch, db: Session = Depends(get_
     return found
 
 
-@router.delete("/{id}")
+@router.delete("/{id}", response_model=StudentDelete)
 def delete_student(id: str, db: Session = Depends(get_db)):
-    found = find_student(id, db)
+    found = find_student(id.strip().upper(), db)
     if not found:
         raise HTTPException(status_code=404, detail="Student not found")
 

@@ -28,5 +28,5 @@ htmlcov/
 .DS_Store
 Thumbs.db
 # Project files
-credentials.py
+
 my_credentials.py

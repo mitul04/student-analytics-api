@@ -1,5 +1,6 @@
 from main import app
-from database import get_db, TestSessionLocal
+from database import get_db
+from testing_database import TestSessionLocal
 
 
 def override_get_db():

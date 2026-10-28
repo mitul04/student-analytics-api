@@ -1,10 +1,24 @@
+import os
+from dotenv import load_dotenv
+
 from sqlalchemy import URL, create_engine, text
 from sqlalchemy.orm import sessionmaker
-from my_credentials import *
 
 
-#DATABASE_URL = f"postgresql+psycopg2://{USERNAME}:{PASSWORD}@{HOST}:{PORT}/{DATABASE}"
-#engine = create_engine(DATABASE_URL, echo=True)
+load_dotenv()
+
+USERNAME = os.getenv("DB_USERNAME")
+PASSWORD = os.getenv("DB_PASSWORD")
+HOST = os.getenv("DB_HOST", "localhost")
+PORT = os.getenv("DB_PORT", "5432")
+DATABASE = os.getenv("DB_NAME", "student_analytics")
+TEST_DATABASE = os.getenv("TEST_DB_NAME", "student_analytics_test")
+
+if not USERNAME or PASSWORD is None:
+    raise RuntimeError(
+        "DB_USERNAME and DB_PASSWORD must be configured."
+    )
+
 
 def create_database_engine(database_name: str):
     url = URL.create(
@@ -15,7 +29,7 @@ def create_database_engine(database_name: str):
         port=int(PORT),
         database=database_name,
     )
-    return create_engine(url, echo=True)
+    return create_engine(url)
 
 engine = create_database_engine(DATABASE)
 
@@ -24,18 +38,6 @@ SessionLocal = sessionmaker(
     autoflush=False,
     autocommit=False
 )
-
-test_engine = create_database_engine("student_analytics_test")
-
-TestSessionLocal = sessionmaker(
-    bind=test_engine,
-    autoflush=False,
-    autocommit=False
-)
-
-#with engine.connect() as connection:
-#    result = connection.execute(text("SELECT 1"))
-#    print(result.scalar())
 
 def get_db():
     db = SessionLocal()

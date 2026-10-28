@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from database import get_db
 from db_models import Branch, Student
+from api_schemas import StudentBase, StudentsSummary, BranchwiseSummary, CGPADistribution
 
 
 router = APIRouter(prefix="/analytics", tags=["Analytics"])
@@ -15,7 +16,7 @@ def check_branch_exists(branch: str, db: Session):
          raise HTTPException(status_code=404, detail="Branch not found")
 
 
-@router.get("/students-summary")
+@router.get("/students-summary", response_model=StudentsSummary)
 def get_students_summary(db: Session = Depends(get_db)):
     result = db.execute(
         select(
@@ -45,7 +46,7 @@ def get_students_summary(db: Session = Depends(get_db)):
     }
 
 
-@router.get("/branchwise-summary")
+@router.get("/branchwise-summary", response_model=BranchwiseSummary)
 def get_branchwise_summary(db: Session = Depends(get_db)):
     result = db.execute(
         select(
@@ -69,10 +70,10 @@ def get_branchwise_summary(db: Session = Depends(get_db)):
     return branch_summary
 
 
-@router.get("/cgpa-range-count")
+@router.get("/cgpa-range-count", response_model=CGPADistribution)
 def get_cgpa_distribution(branch: str | None = None, db: Session = Depends(get_db)):
     if branch is not None:
-        branch = branch.upper()
+        branch = branch.strip().upper()
         check_branch_exists(branch, db)
 
     histogram_query = select(
@@ -90,7 +91,7 @@ def get_cgpa_distribution(branch: str | None = None, db: Session = Depends(get_d
     result = db.execute(histogram_query).one()
 
     return {
-        "branch": branch.upper() if branch is not None else "All",
+        "branch": branch.strip().upper() if branch is not None else "All",
         "total_students": result.total_students,
         "0_6": result.range_0_6,
         "6_7": result.range_6_7,
@@ -100,7 +101,7 @@ def get_cgpa_distribution(branch: str | None = None, db: Session = Depends(get_d
     }
 
 
-@router.get("/top-performers")
+@router.get("/top-performers", response_model=list[StudentBase])
 def get_top_performers(branch: str | None = None, limit : int | None = Query(default=None, ge=1), db: Session = Depends(get_db)):
     query = select(
         Student
@@ -110,7 +111,7 @@ def get_top_performers(branch: str | None = None, limit : int | None = Query(def
     ).limit(limit if limit is not None else 10)
 
     if branch is not None:
-        branch = branch.upper()
+        branch = branch.strip().upper()
         check_branch_exists(branch, db)
         query = query.where(Student.branch == branch)
     
@@ -118,17 +119,17 @@ def get_top_performers(branch: str | None = None, limit : int | None = Query(def
     return result
 
 
-@router.get("/bottom-performers")
+@router.get("/bottom-performers", response_model=list[StudentBase])
 def get_bottom_performers(branch: str | None = None, limit : int | None = Query(default=None, ge=1), db: Session = Depends(get_db)):
     query = select(
         Student
     ).order_by(
         Student.cgpa.asc(),
         Student.name.asc()
-    ).limit(limit)
+    ).limit(limit if limit is not None else 10)
 
     if branch is not None:
-        branch = branch.upper()
+        branch = branch.strip().upper()
         check_branch_exists(branch, db)
         query = query.where(Student.branch == branch)
     

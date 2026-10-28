@@ -1,6 +1,6 @@
 #old path: C:\Users\USER\Downloads\learn\projects\student-analytics api\old_data.py
 
-from schemas import StudentBase
+from api_schemas import StudentBase
 
 BRANCH_CODES = {
     "CSE": "CS",
@@ -41,7 +41,6 @@ students: list[StudentBase] = [
     StudentBase(id="26ME004", name="Wendy", branch="ME", cgpa=8.00),
     StudentBase(id="26CS006", name="Xander", branch="CSE", cgpa=9.6),
     StudentBase(id="26EC005", name="Yara", branch="ECE", cgpa=9.6),
-    StudentBase(id="26CS009", name="Test Student", branch="CSE", cgpa=9.00)
 ]
 
 branch_counters = {

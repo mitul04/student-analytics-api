@@ -1,37 +1,5 @@
 CREATE DATABASE student_analytics;
 
-/*
-CREATE TABLE branches (
-    code VARCHAR(3) PRIMARY KEY,
-    full_name VARCHAR(50) NOT NULL
-);
-
-INSERT INTO branches VALUES
-	('CSE', 'Computer Science and Engineering'),
-	('ECE', 'Electronics and Communication Engineering'),
-	('EEE', 'Electrical and Electronics Engineering'),
-	('CE',  'Civil Engineering'),
-	('ME',  'Mechanical Engineering'),
-	('RAI', 'Robotics and Artificial Intelligence')
-;
-
-ALTER TABLE Branches
-ADD COLUMN id_prefix CHAR(2);
-
-UPDATE Branches SET id_prefix = "CS" where code = "CSE";
-UPDATE Branches SET id_prefix = "EC" where code = "ECE";
-UPDATE Branches SET id_prefix = "EE" where code = "EEE";
-UPDATE Branches SET id_prefix = "CV" where code = "CE";
-UPDATE Branches SET id_prefix = "ME" where code = "ME";
-UPDATE Branches SET id_prefix = "RA" where code = "RAI";
-
-ALTER TABLE Branches
-ALTER COLUMN id_prefix SET NOT NULL;
-
-ALTER TABLE Branches
-ADD CONSTRAINT unique_id_prefix UNIQUE(id_prefix);
-*/
-
 CREATE TABLE Branches (
     code VARCHAR(3) PRIMARY KEY,
     full_name VARCHAR(50) NOT NULL,
@@ -86,8 +54,9 @@ VALUES
 ('26CS006', 'Xander', 'CSE', 9.60),
 ('26EC005', 'Yara', 'ECE', 9.60);
 
-/*Test queries*/
 /*
+Test queries -----------------------------------------------------------------
+
 SELECT
 s.id, s.name, s.cgpa, b.full_name
 FROM Students s
@@ -163,12 +132,23 @@ FROM students
 GROUP BY branch
 
 CREATE INDEX idx_students_branch ON students(branch);
+			
 
-1. Didn't use group by and the query worked fine with order by. Maybe its the way of ordering that mattered. Even if I added the 'GROUP BY branch' clause, I'd still get the same result set.
-2. Do I explicitly write ROLLBACK in a BEGIN-COMMIT block? If I don't write ROLLBACK, will it automatically rollback if an error occurs? Or will it commit the changes made before the error occurred?
+SELECT table_name
+FROM information_schema.tables
+WHERE table_schema = 'public'
+  AND table_name IN ('branches', 'students', 'alembic_version')
+ORDER BY table_name;
 
 
-
+SELECT
+    tc.table_name,
+    tc.constraint_name,
+    tc.constraint_type
+FROM information_schema.table_constraints AS tc
+WHERE tc.table_schema = 'public'
+  AND tc.table_name IN ('branches', 'students')
+ORDER BY tc.table_name, tc.constraint_type, tc.constraint_name;
 
 
 */
